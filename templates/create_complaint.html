@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4><i class="bi bi-megaphone"></i> Create New Complaint</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('create_complaint') }}" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Complaint Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="" selected disabled>Select a category</option>
+                                {% for category in categories %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="images" class="form-label">Upload Evidence (Optional)</label>
+                            <input class="form-control" type="file" id="images" name="images" multiple accept="image/*">
+                            <div class="form-text">
+                                <i class="bi bi-info-circle"></i> You can upload multiple images (Max 16MB total). Allowed formats: JPG, PNG, GIF.
+                            </div>
+                            <div id="imagePreview" class="mt-3 d-flex flex-wrap gap-2"></div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary me-md-2">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send-check"></i> Submit Complaint
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('images').addEventListener('change', function(event) {
+        const previewContainer = document.getElementById('imagePreview');
+        previewContainer.innerHTML = '';
+        
+        if (this.files && this.files.length > 0) {
+            Array.from(this.files).forEach(file => {
+                if (file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.createElement('div');
+                        preview.className = 'position-relative';
+                        preview.style.width = '120px';
+                        preview.style.height = '120px';
+                        
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'img-thumbnail h-100 w-100 object-fit-cover';
+                        img.alt = 'Preview';
+                        
+                        preview.appendChild(img);
+                        previewContainer.appendChild(preview);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+    #imagePreview img {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Welcome, {{ current_user.name }}</h2>
+            <p class="text-muted">Track your complaints and communicate with officials</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('create_complaint') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Complaint
+            </a>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4><i class="bi bi-list-check"></i> Your Complaints</h4>
+        </div>
+        <div class="card-body">
+            {% if complaints %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Assigned To</th>
+                                <th>Created On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in complaints %}
+                                <tr class="status-{{ complaint.status }}">
+                                    <td>{{ complaint.id }}</td>
+                                    <td>{{ complaint.title|truncate(30) }}</td>
+                                    <td>{{ complaint.category }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if complaint.status == 'pending' %}bg-warning text-dark
+                                            {% elif complaint.status == 'in_progress' %}bg-info text-dark
+                                            {% elif complaint.status == 'resolved' %}bg-success
+                                            {% else %}bg-danger
+                                            {% endif %}">
+                                            {{ complaint.status.replace('_', ' ')|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ complaint.assigned_to.replace('_', ' ')|title }}</td>
+                                    <td>{{ complaint.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('view_complaint', complaint_id=complaint.id) }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        {% if complaint.status != 'resolved' %}
+                                        <a href="{{ url_for('view_complaint', complaint_id=complaint.id) }}#message-form" class="btn btn-sm btn-outline-success" title="Send Message">
+                                            <i class="bi bi-chat-left-text"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> You haven't submitted any complaints yet.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h4><i class="bi bi-person-circle"></i> Your Profile Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Name:</strong> {{ current_user.name }}</p>
+                    <p><strong>Email:</strong> {{ current_user.email }}</p>
+                    <p><strong>Phone:</strong> {{ current_user.phone }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Member Since:</strong> {{ current_user.created_at.strftime('%d %B %Y') }}</p>
+                    <p><strong>Total Complaints:</strong> {{ current_user.complaints|length }}</p>
+                    <p><strong>Resolved Complaints:</strong> {{ current_user.complaints|selectattr('status','equalto','resolved')|list|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

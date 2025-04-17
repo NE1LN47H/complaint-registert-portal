@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Welcome, {{ current_user.name }}</h2>
+            <p class="text-muted">You are logged in as <strong>{{ admin_role.replace('_', ' ')|title }}</strong></p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="alert alert-secondary py-2">
+                <i class="bi bi-inbox"></i> <strong>{{ complaints|length }}</strong> assigned complaints
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4><i class="bi bi-list-task"></i> Complaints Assigned to You</h4>
+        </div>
+        <div class="card-body">
+            {% if complaints %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Complainant</th>
+                                <th>Contact</th>
+                                <th>Created On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in complaints %}
+                                <tr class="status-{{ complaint.status }}">
+                                    <td>{{ complaint.id }}</td>
+                                    <td>{{ complaint.title|truncate(25) }}</td>
+                                    <td>{{ complaint.category }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if complaint.status == 'pending' %}bg-warning text-dark
+                                            {% elif complaint.status == 'in_progress' %}bg-info text-dark
+                                            {% elif complaint.status == 'resolved' %}bg-success
+                                            {% else %}bg-danger
+                                            {% endif %}">
+                                            {{ complaint.status.replace('_', ' ')|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{ complaint.creator.name }}
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ complaint.creator.complaints|length }} previous complaints
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <i class="bi bi-envelope"></i> {{ complaint.creator.email }}<br>
+                                            <i class="bi bi-telephone"></i> {{ complaint.creator.phone }}
+                                        </small>
+                                    </td>
+                                    <td>{{ complaint.created_at.strftime('%d-%m-%Y') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('view_complaint', complaint_id=complaint.id) }}" class="btn btn-sm btn-outline-primary" title="View">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            {% if complaint.status != 'resolved' %}
+                                            <a href="{{ url_for('view_complaint', complaint_id=complaint.id) }}#message-form" class="btn btn-sm btn-outline-success" title="Message">
+                                                <i class="bi bi-chat-left-text"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-check-circle"></i> No complaints are currently assigned to you.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4><i class="bi bi-person-badge"></i> Your Admin Profile</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Role:</strong> {{ current_user.admin_role.replace('_', ' ')|title }}</p>
+                    <p><strong>Email:</strong> {{ current_user.email }}</p>
+                    <p><strong>Phone:</strong> {{ current_user.phone }}</p>
+                    <p><strong>Registered Since:</strong> {{ current_user.created_at.strftime('%d %B %Y') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4><i class="bi bi-graph-up"></i> Quick Stats</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <h3>{{ complaints|selectattr('status','equalto','pending')|list|length }}</h3>
+                            <p class="text-muted">Pending</p>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h3>{{ complaints|selectattr('status','equalto','in_progress')|list|length }}</h3>
+                            <p class="text-muted">In Progress</p>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-6 text-center">
+                            <h3>{{ complaints|selectattr('status','equalto','resolved')|list|length }}</h3>
+                            <p class="text-muted">Resolved</p>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h3>{{ complaints|selectattr('status','equalto','escalated')|list|length }}</h3>
+                            <p class="text-muted">Escalated</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

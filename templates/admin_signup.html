@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Admin Registration</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_signup') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="form-text">Must be a valid email address</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                        <div class="form-text">Must be 10 digits</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">Must contain at least 8 characters with uppercase, lowercase, number, and special character</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="admin_role" class="form-label">Admin Role</label>
+                        <select class="form-select" id="admin_role" name="admin_role" required>
+                            <option value="">Select Role</option>
+                            <option value="village_officer">Village Officer</option>
+                            <option value="sub_collector">Sub Collector</option>
+                            <option value="collector">Collector</option>
+                        </select>
+                        <div class="form-text">Only one admin can be registered per role</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+                <div class="mt-3 text-center">
+                    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('form').submit(function(e) {
+            const password = $('#password').val();
+            const confirmPassword = $('#confirm_password').val();
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+            return true;
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
